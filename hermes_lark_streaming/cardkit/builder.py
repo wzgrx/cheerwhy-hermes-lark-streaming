@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import re
+import json
+import os
 from typing import Any
 
 from ..streaming.segments import Segment, SegmentType
@@ -286,7 +288,7 @@ def _build_footer_elements(
     text_size: str = "notation",
 ) -> list[dict]:
     if fields is None:
-        fields = [["status", "elapsed", "context", "model"]]
+        fields = [["status", "elapsed", "context", "model"], ["balance"]]
 
     data = footer_data or {}
     en_lines: list[str] = []
@@ -368,6 +370,30 @@ def _render_footer_field(
             if show_label:
                 return _T["context"][0].format(val), _T["context"][1].format(val)
             return val, val
+        return None, None
+
+    if name == "balance":
+        try:
+            bc_path = os.path.join(os.path.expanduser("~"), ".openclaw", "data", "balance-cache.json")
+            if os.path.exists(bc_path):
+                with open(bc_path, "r", encoding="utf-8") as f:
+                    bc = json.load(f)
+                results = bc.get("results", [])
+                if results:
+                    model = (data.get("model") or "").lower()
+                    platform = ""
+                    if "deepseek" in model:
+                        platform = "DeepSeek"
+                    elif "qwen" in model or "bailian" in model:
+                        platform = "阿里百炼"
+                    elif "silicon" in model or "glm" in model:
+                        platform = "硅基流动"
+                    found = next((r for r in results if r.get("platform") == platform), None)
+                    if found and found.get("available") and found.get("total", 0) > 0:
+                        val = f"\U0001f4b0 {platform} \u00a5{found['total']:.2f}"
+                        return val, val
+        except Exception:
+            pass
         return None, None
 
     return None, None
