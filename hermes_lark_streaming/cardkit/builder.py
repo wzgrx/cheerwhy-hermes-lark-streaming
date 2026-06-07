@@ -289,8 +289,8 @@ def _build_footer_elements(
 ) -> list[dict]:
     if fields is None:
         fields = [["status", "elapsed", "context", "model"]]
-    # Always append balance row — independent of user-configured footer.fields
-    fields = fields + [["balance"]]
+    # Append balance to first row — stays on same line
+    fields[0] = fields[0] + ["balance"]
 
     data = footer_data or {}
     en_lines: list[str] = []
