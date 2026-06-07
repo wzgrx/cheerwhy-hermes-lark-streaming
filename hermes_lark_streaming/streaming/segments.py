@@ -99,25 +99,17 @@ class SegmentState:
                 break
 
     def on_reasoning_delta(self, text: str) -> None:
-        """处理 reasoning 增量，同类型替换否则新建 segment.
-
-        注意：_interim_assistant_cb 每次传来的是完整累积文本，
-        所以用 = 替换而不是 += 追加，否则文本会指数级重复。
-        """
+        """处理 reasoning 增量，同类型追加否则新建 segment."""
         if self.segments and self.segments[-1].type == SegmentType.REASONING:
-            self.segments[-1].text = text
+            self.segments[-1].text += text
             self.segments[-1].dirty = True
         else:
             self._new_reasoning(text)
 
     def on_answer_delta(self, text: str) -> None:
-        """处理 answer 增量，同类型替换否则新建 segment.
-
-        注意：_stream_delta_cb 每次传来的是完整累积文本（不是增量 delta），
-        所以这里用 = 替换而不是 += 追加，否则文本会指数级重复。
-        """
+        """处理 answer 增量，同类型追加否则新建 segment."""
         if self.segments and self.segments[-1].type == SegmentType.ANSWER:
-            self.segments[-1].text = text
+            self.segments[-1].text += text
             self.segments[-1].dirty = True
         else:
             self._new_answer(text)
