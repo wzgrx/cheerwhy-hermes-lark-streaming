@@ -377,7 +377,7 @@ def _render_footer_field(
 
     if name == "balance":
         try:
-            bc_path = os.path.join(os.path.expanduser("~"), ".openclaw", "data", "balance-cache.json")
+            bc_path = os.path.join(os.path.expanduser("~"), ".hermes", "data", "balance-cache.json")
             if os.path.exists(bc_path):
                 with open(bc_path, "r", encoding="utf-8") as f:
                     bc = json.load(f)
