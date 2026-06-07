@@ -118,8 +118,8 @@ class StreamCardController(StreamingController):
         if not self.enabled:
             return
         if not message_id:
-            _logger.warning("on_message_started: missing message_id, chat=%s", chat_id[:12])
-            return
+            _logger.warning("on_message_started: missing message_id, chat=%s, generating fallback", chat_id[:12])
+            message_id = f"fallback_{chat_id[:8]}_{int(time.time())}"
         if message_id in self._sessions:
             return
 
@@ -308,7 +308,7 @@ class StreamCardController(StreamingController):
         session = self._completion_session(message_id)
         if session is None:
             return False
-        message_id = session.message_id
+        message_id = session.message_id or message_id or "unknown"
 
         # 卡片创建失败 → 交回 gateway 正常回复
         if session.state == SessionState.FAILED:
@@ -352,7 +352,7 @@ class StreamCardController(StreamingController):
         session = self._completion_session(message_id)
         if session is None:
             return False
-        message_id = session.message_id
+        message_id = session.message_id or message_id or "unknown"
 
         if not await self._wait_for_card_creation(session):
             _logger.info("on_completed_wait: msg=%s card creation not ready, yielding to gateway", message_id[:12])
