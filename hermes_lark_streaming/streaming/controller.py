@@ -88,8 +88,8 @@ class StreamingController:
 
         if reasoning and self._cfg.show_reasoning:
             segment_state.on_reasoning_delta(reasoning)
-        if answer:
-            segment_state.on_answer_delta(answer)
+        # 注意：不在这里写 answer segment！on_answer 会从 _stream_delta_cb 写一次就够了。
+        # 两路都会收到同样的文本块，两路都写就重复了。
         if not (reasoning and self._cfg.show_reasoning) and not answer:
             return False
         self._schedule_flush(session)

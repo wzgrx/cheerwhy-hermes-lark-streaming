@@ -117,6 +117,13 @@ class StreamCardController(StreamingController):
         """消息处理开始 — 创建会话 + 发占位卡片."""
         if not self.enabled:
             return
+        # Skip OpenClaw's group — Hermes must not create cards there.
+        # Both bots share the same Feishu app and group; Hermes cards
+        # overwrite OpenClaw's if both dispatch to the same chat.
+        _SKIP_CHAT_IDS = {"oc_e57e9e337eb5c47d1c7054fc2cd58fa1"}
+        if chat_id in _SKIP_CHAT_IDS:
+            _logger.debug("on_message_started: skipping OpenClaw chat=%s", chat_id[:12])
+            return
         if not message_id:
             _logger.warning("on_message_started: missing message_id, chat=%s, generating fallback", chat_id[:12])
             message_id = f"fallback_{chat_id[:8]}_{int(time.time())}"
