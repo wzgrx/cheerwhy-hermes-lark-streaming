@@ -115,7 +115,10 @@ class FlushController:
 
     def _do_flush_task(self, do_flush: Callable[[], Awaitable[None]]) -> None:
         self._pending_timer = None
-        self._loop.call_soon(asyncio.create_task, self._do_flush(do_flush))
+        try:
+            self._loop.call_soon(asyncio.create_task, self._do_flush(do_flush))
+        except RuntimeError:
+            _logger.debug("flush: event loop closed, skipping")
 
     async def _do_flush(self, do_flush: Callable[[], Awaitable[None]]) -> None:
         if self._completed or self._flush_in_progress:

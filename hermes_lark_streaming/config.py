@@ -87,7 +87,8 @@ class Config:
         body = sec.get("body", {})
         if not isinstance(body, dict):
             return "normal_v2"
-        return str(body.get("text_size", "normal_v2")) or "normal_v2"
+        val = body.get("text_size") or "normal_v2"
+        return str(val)
 
     @property
     def footer_text_size(self) -> str:
@@ -96,7 +97,8 @@ class Config:
         footer = sec.get("footer", {})
         if not isinstance(footer, dict):
             return "notation"
-        return str(footer.get("text_size", "notation")) or "notation"
+        val = footer.get("text_size") or "notation"
+        return str(val)
 
     @property
     def footer_fields(self) -> list[list[str]]:
