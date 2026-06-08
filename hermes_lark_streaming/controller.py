@@ -349,6 +349,9 @@ class StreamCardController(StreamingController):
         """消息处理完成，并等待卡片真正收尾后返回是否已发送."""
         if not self.enabled:
             return False
+        if not message_id:
+            _logger.warning("on_completed_wait: missing message_id, yielding to gateway")
+            return False
         session = self._completion_session(message_id)
         if session is None:
             return False
@@ -483,7 +486,9 @@ class StreamCardController(StreamingController):
         if session.image_resolver:
             session.image_resolver.cancel_pending()
 
-    def _completion_session(self, message_id: str) -> CardSession | None:
+    def _completion_session(self, message_id: str | None) -> CardSession | None:
+        if message_id is None:
+            return None
         session = self._sessions.get(message_id)
         if session is not None and (not session.state.is_terminal or session.state == SessionState.FAILED):
             return session
